@@ -15,46 +15,56 @@ switch ($_method) {
     //GET:
 
     case 'GET':
-        if ($authorization === 'bearer todocamisetas.camiseta.get') {
-            include_once __DIR__ . '/../../conexion.php';
-            include_once __DIR__ . '/modelCamiseta.php';
+    if ($_authorization === 'Bearer todocamisetas.camiseta.get') {
+        include_once __DIR__ . '/../../../conexion.php';
+        include_once __DIR__ . '/modelCamiseta.php';
 
-            $modelo = new modeloCamiseta();
+        $modelo = new modeloCamiseta();
 
-            //Si viene el rut 123 listar camisetas de ese cliente:
+        if (isset($_GET['rut']) && $_GET['rut'] !== '') {
 
-            if (isset($_GET['rut']) && $_GET['rut'] !== '') {
+            $rut = (int) $_GET['rut'];
 
-                $rut = (int) $_GET['rut'];
-
-                if ($rut <= 0) {
-                    http_response_code(400);
-                    echo json_encode(['type' => 'error', 'msg' => 'El Rut ingresado no es valido.']);
-                    exit;
-                }
-
-                $modelo -> setRutCliente($rut);
-                $camisetas = $modelo -> getByCliente($modelo);
-
-                if(!empty($camisetas)) {
-                    http_response_code(200);
-                    echo json_encode(['type' => 'success', 'data' => $camisetas], JSON_PRETTY_PRINT);
-                }else {
-                    http_response_code(404);
-                    echo json_encode(['type' => 'error', 'msg' => 'No se encontraron camisetas para el cliente indicado.']);
-                }
-            }else {
-                http_response_code(403);
-                echo json_encode(['type' => 'error', 'msg' => 'Acceso prohibido o token invalido.'])
+            if ($rut <= 0) {
+                http_response_code(400);
+                echo json_encode(['type' => 'error', 'msg' => 'El Rut ingresado no es valido.']);
+                exit;
             }
-            break;
+
+            $modelo->setRutCliente($rut);
+            $camisetas = $modelo->getByCliente($modelo);
+
+            if (!empty($camisetas)) {
+                http_response_code(200);
+                echo json_encode(['type' => 'success', 'data' => $camisetas], JSON_PRETTY_PRINT);
+            } else {
+                http_response_code(404);
+                echo json_encode(['type' => 'error', 'msg' => 'No se encontraron camisetas para el cliente indicado.']);
+            }
+
+        } else {
+            $camisetas = $modelo->getAll();
+
+            if (!empty($camisetas)) {
+                http_response_code(200);
+                echo json_encode(['type' => 'success', 'data' => $camisetas], JSON_PRETTY_PRINT);
+            } else {
+                http_response_code(404);
+                echo json_encode(['type' => 'error', 'msg' => 'No hay camisetas registradas.']);
+            }
         }
+
+    } else {
+        http_response_code(403);
+        echo json_encode(['type' => 'error', 'msg' => 'Acceso Prohibido o Token Invalido.']);
+    }
+    break;
 
     //POST:
 
     case 'POST':
         if ($_authorization === 'Bearer todocamisetas.camiseta.post') {
-            include_once __DIR__ . '/../../conexion.php';
+            include_once __DIR__ . '/../../../conexion.php';
             include_once __DIR__ . '/modelCamiseta.php';
  
             $body = json_decode(file_get_contents('php://input'), true);
@@ -123,7 +133,7 @@ switch ($_method) {
     //PUT:
     case 'PUT':
         if ($_authorization === 'Bearer todocamisetas.camiseta.put') {
-            include_once __DIR__ . '/../../conexion.php';
+            include_once __DIR__ . '/../../../conexion.php';
             include_once __DIR__ . '/modelCamiseta.php';
  
             $body = json_decode(file_get_contents('php://input'), true);
@@ -185,7 +195,7 @@ switch ($_method) {
     //DELETE
     case 'DELETE':
         if ($_authorization === 'Bearer todocamisetas.camiseta.delete') {
-            include_once __DIR__ . '/../../conexion.php';
+            include_once __DIR__ . '/../../../conexion.php';
             include_once __DIR__ . '/modelCamiseta.php';
  
             $body = json_decode(file_get_contents('php://input'), true);

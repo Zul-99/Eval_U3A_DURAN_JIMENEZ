@@ -71,20 +71,21 @@ class modeloCliente {
 
     public function getAll() {
         $con = new Conexion();
- 
-        $query = "SELECT RUT, NOMBRE, DIRECCION, CATEGORIA, CONTACTO, PRO_OF
-                  FROM cliente
-                  ORDER BY RUT ASC";
- 
-        $stmt = mysqli_prepare($con->getConnection(), $query);
+
+        $query = "SELECT RUT, NOMBRE, DIRECCION, CATEGORIA, CONTACTO, POR_OF
+                FROM cliente
+                ORDER BY RUT ASC";
+
+        $conexion = $con->getConnection();
+        $stmt = mysqli_prepare($conexion, $query);
         mysqli_stmt_execute($stmt);
         $resultado = mysqli_stmt_get_result($stmt);
- 
+
         $clientes = [];
         while ($fila = mysqli_fetch_assoc($resultado)) {
             $clientes[] = $fila;
         }
- 
+
         mysqli_stmt_close($stmt);
         $con->closeConnection();
         return $clientes;
@@ -102,7 +103,7 @@ class modeloCliente {
         $contacto  = $_nuevo->getContacto();
         $pro_of    = $_nuevo->getProOf();
  
-        $query = "INSERT INTO cliente (RUT, NOMBRE, DIRECCION, CATEGORIA, CONTACTO, PRO_OF)
+        $query = "INSERT INTO cliente (RUT, NOMBRE, DIRECCION, CATEGORIA, CONTACTO, POR_OF)
                   VALUES (?, ?, ?, ?, ?, ?)";
  
         // RUT(i), NOMBRE(s), DIRECCION(s), CATEGORIA(s), CONTACTO(s), PRO_OF(i)
@@ -140,7 +141,7 @@ class modeloCliente {
                     DIRECCION = ?,
                     CATEGORIA = ?,
                     CONTACTO  = ?,
-                    PRO_OF    = ?
+                    POR_OF    = ?
                   WHERE RUT   = ?";
  
         // NOMBRE(s), DIRECCION(s), CATEGORIA(s), CONTACTO(s), PRO_OF(i), RUT(i)

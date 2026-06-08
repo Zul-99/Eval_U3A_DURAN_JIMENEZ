@@ -67,7 +67,7 @@ class modeloCamiseta {
         return $this -> tipo;
     }
 
-    public function setTipo() {
+    public function setTipo($value) {
         $this -> tipo = $value;
     }
 
@@ -75,7 +75,7 @@ class modeloCamiseta {
         return $this -> precio;
     }
 
-    public function setPrecio() {
+    public function setPrecio($value) {
         $this -> precio = $value;
     }
 
@@ -91,7 +91,7 @@ class modeloCamiseta {
         return $this -> detalles;
     }
 
-    public function setDetalles() {
+    public function setDetalles($value) {
         $this -> detalles = $value;
     }
 
@@ -129,10 +129,10 @@ class modeloCamiseta {
 
     //metodo ~ GetByCliente - camiseta x cliente
 
-    public function getByCliente($modeloCamiseta $_camiseta) {
+    public function getByCliente($_camiseta) {
 
         $con = new Conexion();
-        $rut = $_camiseta -> getRutCliente();
+        $rut = $_camiseta->getRutCliente();
 
         $query = "SELECT DISTINCT
                     c.SKU,
@@ -148,11 +148,11 @@ class modeloCamiseta {
                 INNER JOIN det_pedido dp ON dp.SKU = c.SKU
                 INNER JOIN pedido p ON p.ID_PEDIDO = dp.ID_PEDIDO
                 INNER JOIN cliente cl ON cl.RUT = p.RUT
-                INNER JOIN cl.RUT = ?
-                ORDER BY c.SKU ASC"
+                WHERE cl.RUT = ?
+                ORDER BY c.SKU ASC";
 
-        $stmt = mysqli_prepare($con -> getConnection(), $query);
-        mysqli_stmt_bind_param($stmt, 'i', rut);
+        $stmt = mysqli_prepare($con->getConnection(), $query);
+        mysqli_stmt_bind_param($stmt, 'i', $rut);
         mysqli_stmt_execute($stmt);
         $resultado = mysqli_stmt_get_result($stmt);
 
@@ -162,7 +162,7 @@ class modeloCamiseta {
         }
 
         mysqli_stmt_close($stmt);
-        $con ->closeConnection();
+        $con->closeConnection();
         return $camisetas;
     }
 
@@ -172,15 +172,15 @@ class modeloCamiseta {
 
         $con = new Conexion();
 
-        $sku = $_nuevo->getSku;
-        $titulo = $_nuevo->getTitulo;
-        $club = $_nuevo->getClub;
-        $pais = $_nuevo->getPais;
-        $tipo = $_nuevo->getTipo;
-        $color = $_nuevo->getColor;
-        $precio = $_nuevo->getPrecio;
-        $tallas = $_nuevo->getTallas;
-        $detalles = $_nuevo->getDetalles;
+        $sku = $_nuevo->getSku();
+        $titulo = $_nuevo->getTitulo();
+        $club = $_nuevo->getClub();
+        $pais = $_nuevo->getPais();
+        $tipo = $_nuevo->getTipo();
+        $color = $_nuevo->getColor();
+        $precio = $_nuevo->getPrecio();
+        $tallas = $_nuevo->getTallas();
+        $detalles = $_nuevo->getDetalles();
 
         $query = "INSERT INTO camiseta (SKU, TITULO, CLUB, PAIS, TIPO, COLOR, PRECIO, TALLAS, DETALLES)
                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
@@ -196,7 +196,7 @@ class modeloCamiseta {
             $color,
             $precio,
             $tallas,
-            $detalles,
+            $detalles
         );
 
         $rs = mysqli_stmt_execute($stmt);
@@ -259,7 +259,7 @@ class modeloCamiseta {
         $sku = $_camiseta->getSku();
  
         // Validacion: no eliminar si tiene pedidos asociados
-        $queryCheck = "SELECT COUNT(*) as cnt FROM det_predido WHERE SKU = ?";
+        $queryCheck = "SELECT COUNT(*) as cnt FROM det_pedido WHERE SKU = ?";
         $stmtCheck  = mysqli_prepare($con->getConnection(), $queryCheck);
         mysqli_stmt_bind_param($stmtCheck, 'i', $sku);
         mysqli_stmt_execute($stmtCheck);

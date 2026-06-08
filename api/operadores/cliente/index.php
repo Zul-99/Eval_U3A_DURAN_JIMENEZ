@@ -1,6 +1,5 @@
-ente · PHP
 <?php
-include_once __DIR__ . '/../../v1.php';
+include_once dirname(__DIR__, 3) . '/v1.php';
 header('Content-Type: application/json');
  
 // Tokens para CLIENTE:
@@ -15,7 +14,7 @@ switch ($_method) {
 
     case 'GET':
         if ($_authorization === 'Bearer todocamisetas.cliente.get') {
-            include_once __DIR__ . '/../../conexion.php';
+            include_once __DIR__ . '/../../../conexion.php';
             include_once __DIR__ . '/modelCliente.php';
  
             $modelo    = new modeloCliente();
@@ -39,7 +38,7 @@ switch ($_method) {
 
     case 'POST':
         if ($_authorization === 'Bearer todocamisetas.cliente.post') {
-            include_once __DIR__ . '/../../conexion.php';
+            include_once __DIR__ . '/../../../conexion.php';
             include_once __DIR__ . '/modelCliente.php';
  
             $body = json_decode(file_get_contents('php://input'), true);
@@ -114,7 +113,7 @@ switch ($_method) {
 
     case 'PUT':
         if ($_authorization === 'Bearer todocamisetas.cliente.put') {
-            include_once __DIR__ . '/../../conexion.php';
+            include_once __DIR__ . '/../../../conexion.php';
             include_once __DIR__ . '/modelCliente.php';
  
             $body = json_decode(file_get_contents('php://input'), true);
@@ -181,7 +180,7 @@ switch ($_method) {
  
     case 'DELETE':
         if ($_authorization === 'Bearer todocamisetas.cliente.delete') {
-            include_once __DIR__ . '/../../conexion.php';
+            include_once __DIR__ . '/../../../conexion.php';
             include_once __DIR__ . '/modelCliente.php';
  
             $body = json_decode(file_get_contents('php://input'), true);
