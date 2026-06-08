@@ -99,7 +99,7 @@ class modeloCamiseta {
         return $this -> rut_cliente;
     }
 
-    public function setRutCliente() {
+    public function setRutCliente($value) {
         $this -> rut_cliente = $value;
     }
 

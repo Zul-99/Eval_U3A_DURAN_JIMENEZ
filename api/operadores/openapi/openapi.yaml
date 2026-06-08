@@ -1,5 +1,794 @@
 openapi: 3.0.0
 info:
-  title: ProviEmplea API
+  title: TodoCamisetas API
   version: 1.0.0
-paths: {}
+servers:
+  - url: http://localhost/examen_final_back_duran_jimenez/api/operadores
+
+paths:
+
+  # CAMISETAS ~ Felipe
+
+  /camiseta/index.php:
+    get:
+      summary: Listar camisetas / Listar camisetas por cliente
+      tags:
+        - Camisetas
+      description: >
+        Operaciones según el token Bearer:
+
+        - `todocamisetas.camiseta.get` → Lista todas las camisetas registradas.
+
+        - `todocamisetas.camiseta.get` + query param `?rut=` → Lista las camisetas pedidas por un cliente específico.
+      security:
+        - BearerCamisetaGet: []
+      parameters:
+        - name: rut
+          in: query
+          required: false
+          description: "RUT del cliente para filtrar sus camisetas pedidas."
+          schema:
+            type: integer
+            example: 12345678
+      responses:
+        '200':
+          description: Listado de camisetas
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  type:
+                    type: string
+                    example: "success"
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        SKU:
+                          type: integer
+                          example: 1001
+                        TITULO:
+                          type: string
+                          example: "Camiseta Local 2025 - Seleccion Chilena"
+                        CLUB:
+                          type: string
+                          example: "Seleccion Chilena"
+                        PAIS:
+                          type: string
+                          example: "Chile"
+                        TIPO:
+                          type: string
+                          example: "Local"
+                        COLOR:
+                          type: string
+                          example: "Rojo y Azul"
+                        PRECIO:
+                          type: integer
+                          example: 45000
+                        TALLAS:
+                          type: string
+                          example: "S,M,L,XL"
+                        DETALLES:
+                          type: string
+                          example: "Edicion aniversario 2025"
+        '404':
+          description: No hay camisetas registradas
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  type:
+                    type: string
+                    example: "error"
+                  msg:
+                    type: string
+                    example: "No hay camisetas registradas."
+        '403':
+          description: Acceso prohibido o token inválido
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  type:
+                    type: string
+                    example: "error"
+                  msg:
+                    type: string
+                    example: "Acceso Prohibido o Token Invalido."
+
+    post:
+      summary: Registrar nueva camiseta
+      tags:
+        - Camisetas
+      description: >
+        Operaciones según el token Bearer:
+
+        - `todocamisetas.camiseta.post` → Registra una nueva camiseta en el sistema.
+      security:
+        - BearerCamisetaPost: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - sku
+                - titulo
+                - club
+                - pais
+                - tipo
+                - color
+                - precio
+                - tallas
+                - detalles
+              properties:
+                sku:
+                  type: integer
+                  example: 1001
+                titulo:
+                  type: string
+                  example: "Camiseta Local 2025 - Seleccion Chilena"
+                club:
+                  type: string
+                  example: "Seleccion Chilena"
+                pais:
+                  type: string
+                  example: "Chile"
+                tipo:
+                  type: string
+                  example: "Local"
+                color:
+                  type: string
+                  example: "Rojo y Azul"
+                precio:
+                  type: integer
+                  example: 45000
+                tallas:
+                  type: string
+                  example: "S,M,L,XL"
+                detalles:
+                  type: string
+                  example: "Edicion aniversario 2025"
+      responses:
+        '201':
+          description: Camiseta registrada correctamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  type:
+                    type: string
+                    example: "success"
+                  msg:
+                    type: string
+                    example: "Camiseta registrada correctamente."
+        '400':
+          description: Campo requerido faltante o tipo inválido
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  type:
+                    type: string
+                    example: "error"
+                  msg:
+                    type: string
+                    example: "Faltan campos obligatorios."
+                  campo_faltante:
+                    type: string
+                    example: "sku"
+        '403':
+          description: Acceso prohibido o token inválido
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  type:
+                    type: string
+                    example: "error"
+                  msg:
+                    type: string
+                    example: "Acceso Prohibido o Token Invalido."
+        '422':
+          description: Error al registrar en base de datos
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  type:
+                    type: string
+                    example: "error"
+                  msg:
+                    type: string
+                    example: "Error al registrar la camiseta. El SKU puede que ya exista."
+
+    put:
+      summary: Actualizar camiseta existente
+      tags:
+        - Camisetas
+      description: >
+        Operaciones según el token Bearer:
+
+        - `todocamisetas.camiseta.put` → Actualiza todos los campos de una camiseta identificada por su SKU.
+      security:
+        - BearerCamisetaPut: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - sku
+                - titulo
+                - club
+                - pais
+                - tipo
+                - color
+                - precio
+                - tallas
+                - detalles
+              properties:
+                sku:
+                  type: integer
+                  example: 1001
+                titulo:
+                  type: string
+                  example: "Camiseta Local 2025 - Seleccion Chilena ACTUALIZADA"
+                club:
+                  type: string
+                  example: "Seleccion Chilena"
+                pais:
+                  type: string
+                  example: "Chile"
+                tipo:
+                  type: string
+                  example: "Local"
+                color:
+                  type: string
+                  example: "Rojo y Azul"
+                precio:
+                  type: integer
+                  example: 50000
+                tallas:
+                  type: string
+                  example: "S,M,L,XL,XXL"
+                detalles:
+                  type: string
+                  example: "Edicion aniversario 2025 - Edicion Limitada"
+      responses:
+        '200':
+          description: Camiseta actualizada correctamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  type:
+                    type: string
+                    example: "success"
+                  msg:
+                    type: string
+                    example: "Camiseta actualizada correctamente."
+        '400':
+          description: Campo requerido faltante o tipo inválido
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  type:
+                    type: string
+                    example: "error"
+                  msg:
+                    type: string
+                    example: "Faltan campos obligatorios."
+                  campo_faltante:
+                    type: string
+                    example: "precio"
+        '403':
+          description: Acceso prohibido o token inválido
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  type:
+                    type: string
+                    example: "error"
+                  msg:
+                    type: string
+                    example: "Acceso Prohibido o Token Invalido."
+        '422':
+          description: Error al actualizar en base de datos
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  type:
+                    type: string
+                    example: "error"
+                  msg:
+                    type: string
+                    example: "Error al actualizar la camiseta. Verifique que el SKU exista."
+
+    delete:
+      summary: Eliminar camiseta
+      tags:
+        - Camisetas
+      description: >
+        Operaciones según el token Bearer:
+
+        - `todocamisetas.camiseta.delete` → Elimina una camiseta por SKU. No se puede eliminar si tiene pedidos asociados.
+      security:
+        - BearerCamisetaDelete: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - sku
+              properties:
+                sku:
+                  type: integer
+                  example: 1001
+      responses:
+        '200':
+          description: Camiseta eliminada correctamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  type:
+                    type: string
+                    example: "success"
+                  msg:
+                    type: string
+                    example: "Camiseta eliminada correctamente."
+        '400':
+          description: SKU faltante o inválido
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  type:
+                    type: string
+                    example: "error"
+                  msg:
+                    type: string
+                    example: "El campo SKU es obligatorio."
+        '403':
+          description: Acceso prohibido o token inválido
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  type:
+                    type: string
+                    example: "error"
+                  msg:
+                    type: string
+                    example: "Acceso Prohibido o Token Invalido."
+        '409':
+          description: No se puede eliminar - tiene pedidos asociados
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  type:
+                    type: string
+                    example: "error"
+                  msg:
+                    type: string
+                    example: "No se puede eliminar la camiseta. Puede que tenga pedidos asociados o el SKU no exista."
+
+  # CLIENTES ~ Felipe
+
+  /cliente/index.php:
+    get:
+      summary: Listar todos los clientes
+      tags:
+        - Clientes
+      description: >
+        Operaciones según el token Bearer:
+
+        - `todocamisetas.cliente.get` → Lista todos los clientes B2B registrados.
+      security:
+        - BearerClienteGet: []
+      responses:
+        '200':
+          description: Listado de clientes
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  type:
+                    type: string
+                    example: "success"
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        RUT:
+                          type: integer
+                          example: 12345678
+                        NOMBRE:
+                          type: string
+                          example: "90minutos"
+                        DIRECCION:
+                          type: string
+                          example: "Providencia, Santiago"
+                        CATEGORIA:
+                          type: string
+                          example: "Preferencial"
+                        CONTACTO:
+                          type: string
+                          example: "Juan Perez - jperez@90minutos.cl"
+                        POR_OF:
+                          type: integer
+                          example: 15
+        '404':
+          description: No hay clientes registrados
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  type:
+                    type: string
+                    example: "error"
+                  msg:
+                    type: string
+                    example: "No hay clientes registrados."
+        '403':
+          description: Acceso prohibido o token inválido
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  type:
+                    type: string
+                    example: "error"
+                  msg:
+                    type: string
+                    example: "Acceso Prohibido o Token Invalido."
+
+    post:
+      summary: Registrar nuevo cliente
+      tags:
+        - Clientes
+      description: >
+        Operaciones según el token Bearer:
+
+        - `todocamisetas.cliente.post` → Registra un nuevo cliente B2B. La categoría debe ser "Regular" o "Preferencial".
+      security:
+        - BearerClientePost: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - rut
+                - nombre
+                - direccion
+                - categoria
+                - contacto
+                - pro_of
+              properties:
+                rut:
+                  type: integer
+                  example: 12345678
+                nombre:
+                  type: string
+                  example: "90minutos"
+                direccion:
+                  type: string
+                  example: "Providencia, Santiago"
+                categoria:
+                  type: string
+                  enum: [Regular, Preferencial]
+                  example: "Preferencial"
+                contacto:
+                  type: string
+                  example: "Juan Perez - jperez@90minutos.cl"
+                pro_of:
+                  type: integer
+                  minimum: 0
+                  maximum: 100
+                  example: 15
+      responses:
+        '201':
+          description: Cliente registrado correctamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  type:
+                    type: string
+                    example: "success"
+                  msg:
+                    type: string
+                    example: "Cliente registrado correctamente."
+        '400':
+          description: Campo requerido faltante o valor inválido
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  type:
+                    type: string
+                    example: "error"
+                  msg:
+                    type: string
+                    example: "Faltan campos obligatorios."
+                  campo_faltante:
+                    type: string
+                    example: "categoria"
+        '403':
+          description: Acceso prohibido o token inválido
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  type:
+                    type: string
+                    example: "error"
+                  msg:
+                    type: string
+                    example: "Acceso Prohibido o Token Invalido."
+        '422':
+          description: Error al registrar en base de datos
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  type:
+                    type: string
+                    example: "error"
+                  msg:
+                    type: string
+                    example: "Error al registrar el cliente. El RUT puede que ya exista."
+
+    put:
+      summary: Actualizar cliente existente
+      tags:
+        - Clientes
+      description: >
+        Operaciones según el token Bearer:
+
+        - `todocamisetas.cliente.put` → Actualiza todos los campos de un cliente identificado por su RUT.
+      security:
+        - BearerClientePut: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - rut
+                - nombre
+                - direccion
+                - categoria
+                - contacto
+                - pro_of
+              properties:
+                rut:
+                  type: integer
+                  example: 12345678
+                nombre:
+                  type: string
+                  example: "90minutos ACTUALIZADO"
+                direccion:
+                  type: string
+                  example: "Las Condes, Santiago"
+                categoria:
+                  type: string
+                  enum: [Regular, Preferencial]
+                  example: "Preferencial"
+                contacto:
+                  type: string
+                  example: "Carlos Gomez - cgomez@90minutos.cl"
+                pro_of:
+                  type: integer
+                  minimum: 0
+                  maximum: 100
+                  example: 20
+      responses:
+        '200':
+          description: Cliente actualizado correctamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  type:
+                    type: string
+                    example: "success"
+                  msg:
+                    type: string
+                    example: "Cliente actualizado correctamente."
+        '400':
+          description: Campo requerido faltante o valor inválido
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  type:
+                    type: string
+                    example: "error"
+                  msg:
+                    type: string
+                    example: "Faltan campos obligatorios."
+                  campo_faltante:
+                    type: string
+                    example: "rut"
+        '403':
+          description: Acceso prohibido o token inválido
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  type:
+                    type: string
+                    example: "error"
+                  msg:
+                    type: string
+                    example: "Acceso Prohibido o Token Invalido."
+        '422':
+          description: Error al actualizar en base de datos
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  type:
+                    type: string
+                    example: "error"
+                  msg:
+                    type: string
+                    example: "Error al actualizar el cliente. Verifique que el RUT exista."
+
+    delete:
+      summary: Eliminar cliente
+      tags:
+        - Clientes
+      description: >
+        Operaciones según el token Bearer:
+
+        - `todocamisetas.cliente.delete` → Elimina un cliente por RUT. No se puede eliminar si tiene pedidos asociados.
+      security:
+        - BearerClienteDelete: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - rut
+              properties:
+                rut:
+                  type: integer
+                  example: 12345678
+      responses:
+        '200':
+          description: Cliente eliminado correctamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  type:
+                    type: string
+                    example: "success"
+                  msg:
+                    type: string
+                    example: "Cliente eliminado correctamente."
+        '400':
+          description: RUT faltante o inválido
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  type:
+                    type: string
+                    example: "error"
+                  msg:
+                    type: string
+                    example: "El campo RUT es obligatorio."
+        '403':
+          description: Acceso prohibido o token inválido
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  type:
+                    type: string
+                    example: "error"
+                  msg:
+                    type: string
+                    example: "Acceso Prohibido o Token Invalido."
+        '409':
+          description: No se puede eliminar - tiene pedidos asociados
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  type:
+                    type: string
+                    example: "error"
+                  msg:
+                    type: string
+                    example: "No se puede eliminar el cliente. Puede que tenga pedidos asociados o el RUT no exista."
+
+# SECURITY SCHEMES
+
+components:
+  securitySchemes:
+
+    # CAMISETAS
+    BearerCamisetaGet:
+      type: http
+      scheme: bearer
+      description: "Token: todocamisetas.camiseta.get"
+    BearerCamisetaPost:
+      type: http
+      scheme: bearer
+      description: "Token: todocamisetas.camiseta.post"
+    BearerCamisetaPut:
+      type: http
+      scheme: bearer
+      description: "Token: todocamisetas.camiseta.put"
+    BearerCamisetaDelete:
+      type: http
+      scheme: bearer
+      description: "Token: todocamisetas.camiseta.delete"
+
+    # CLIENTES
+    BearerClienteGet:
+      type: http
+      scheme: bearer
+      description: "Token: todocamisetas.cliente.get"
+    BearerClientePost:
+      type: http
+      scheme: bearer
+      description: "Token: todocamisetas.cliente.post"
+    BearerClientePut:
+      type: http
+      scheme: bearer
+      description: "Token: todocamisetas.cliente.put"
+    BearerClienteDelete:
+      type: http
+      scheme: bearer
+      description: "Token: todocamisetas.cliente.delete"
