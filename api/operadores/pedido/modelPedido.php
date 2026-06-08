@@ -14,7 +14,6 @@ class modelPedido{
 //DET_PEDIDO
     private $ID_DET_PED;	
     private $CANT;	
-    private $MONTO;	
     private $MONTO_TOTAL;	
     private $SKU;	
 
@@ -74,14 +73,6 @@ class modelPedido{
 		$this->CANT = $value;
 	}
 
-	public function getMONTO() {
-		return $this->MONTO;
-	}
-
-	public function setMONTO($value) {
-		$this->MONTO = $value;
-	}
-
 	public function getMONTO_TOTAL() {
 		return $this->MONTO_TOTAL;
 	}
@@ -102,70 +93,83 @@ class modelPedido{
 
     public function llamarPedidoPorID($ID_PEDIDO){
         $con = new Conexion();
-        $db = $con-> getConnection();
-        $query = "SELECT ID_PEDIDO, FECHA, MONTO, RUT FROM pedido WHERE ID_PEDIDO = ?";
+        $db = $con->getConnection();
+        $query = "SELECT p.ID_PEDIDO, p.FECHA, p.RUT,
+                         COALESCE(SUM(dp.MONTO_TOTAL), 0) AS MONTO
+                  FROM pedido p
+                  LEFT JOIN det_pedido dp ON p.ID_PEDIDO = dp.ID_PEDIDO
+                  WHERE p.ID_PEDIDO = ?
+                  GROUP BY p.ID_PEDIDO, p.FECHA, p.RUT";
+                  
         $stmt = $db->prepare($query);
-        $this->getID_PEDIDO();
-        $this->getFECHA();
-        $this->getMONTO();
-        $this->getRUT();
-        $stmt->bind_param("i",
-        $ID_PEDIDO
-        );
+        $stmt->bind_param("i", $ID_PEDIDO);
 
-
-        try{
-            $rs = $stmt->execute();
-            $filas_llamadas = $stmt->affected_rows;
-            $stmt->close();
-            return($rs && $filas_llamadas > 0);
-        }catch (\mysqli_sql_exception $e) {
-        	return false;
-        	}
-        $stmt->close();
-    $con->closeConnection();
-    return $rs;
+        try {
+            $stmt->execute();
+            $resultado = $stmt->get_result();
+            if ($resultado->num_rows > 0) {
+                $datos = $resultado->fetch_assoc();
+                $stmt->close();
+                $con->closeConnection(); 
+                return $datos; 
+            } else {
+                $stmt->close();
+                $con->closeConnection();
+                return false; 
+            }
+        } catch (\mysqli_sql_exception $e) {
+            return false;
+        }
     }
 
 
 
-    public function llamarTodosLosPedidos(){
-    $con = new Conexion();
-    $db= $con ->getConnection();
-    $lista = [];
-    $query = "SELECT ID_PEDIDO, FECHA, MONTO, RUT FROM pedido";
-    
+    public function llamarTodosLosPedidos() {
+        $con = new Conexion();
+        $db = $con->getConnection();
+        $lista = [];
+        $query = "SELECT p.ID_PEDIDO, p.FECHA, p.RUT, 
+                         COALESCE(SUM(dp.MONTO_TOTAL), 0) AS MONTO
+                  FROM pedido p
+                  LEFT JOIN det_pedido dp ON p.ID_PEDIDO = dp.ID_PEDIDO
+                  GROUP BY p.ID_PEDIDO, p.FECHA, p.RUT";
 
-    $rs = mysqli_query($db,$query);
+        $rs = $db->query($query);
+        if ($rs) {
+            while ($registro = $rs->fetch_assoc()) {
 
-    if($rs){
-        while($registro = mysqli_fetch_assoc($rs)){
-            $tupla = new modelPedido();
-            $tupla-> setID_PEDIDO($registro['ID_PEDIDO']);
-            $tupla -> setFECHA($registro['FECHA']);
-            $tupla-> setMONTO($registro['MONTO']);
-            $tupla-> setRUT($registro['RUT']);
-
-            array_push($lista,
-                array(
-                    'ID DEL PEDIDO' => $tupla ->getID_PEDIDO(),
-                    'FECHA DEL PEDIDO' => $tupla->getFECHA(),
-                    'MONTO DEL PEDIDO' => $tupla->getMONTO(),
-                    'RUT DEL COMPRADOR'=>$tupla->getRUT()
-                    )
+                $lista[] = array(
+                    'ID DEL PEDIDO'     => $registro['ID_PEDIDO'],
+                    'FECHA DEL PEDIDO'  => $registro['FECHA'],
+                    'MONTO DEL PEDIDO'  => (int)$registro['MONTO'],
+                    'RUT DEL COMPRADOR' => $registro['RUT']
                 );
             }
-            mysqli_free_result($rs);
+            $rs->free();
         }
-        $con-> closeConnection();
+        $con->closeConnection();
         return $lista;
     }
 
 
-    public function IngresarPedidos(){
+    public function IngresarPrePedido(){
         $con = new Conexion();
         $db = $con->getConnection();
-        $query = "";
+        $query = "INSERT INTO pedido (ID_PEDIDO, FECHA, RUT) VALUES (?,?,?)";
+        $stmt = $db->prepare($query);
+        $id_pedido = $this->getID_PEDIDO();
+        $fecha = $this->getFECHA();
+        $rut = $this->getRUT();
+        $stmt->bind_param("iss", $id_pedido, $fecha, $rut);
+        try{
+            $rs = $stmt->execute();
+            $stmt->close();
+            $con->closeConnection();
+            return $rs;
+        }catch (\mysqli_sql_exception $e) {
+
+        	return false;
+        }
     }
 	
 
