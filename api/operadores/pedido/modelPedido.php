@@ -95,7 +95,9 @@ class modelPedido{
         $con = new Conexion();
         $db = $con->getConnection();
         $query = "SELECT p.ID_PEDIDO, p.FECHA, p.RUT,
-                         COALESCE(SUM(dp.MONTO_TOTAL), 0) AS MONTO
+                         COALESCE(SUM(dp.MONTO_TOTAL), 0) AS MONTO_TOTAL,
+                         dp.MONTO,
+                         dp.CANT
                   FROM pedido p
                   LEFT JOIN det_pedido dp ON p.ID_PEDIDO = dp.ID_PEDIDO
                   WHERE p.ID_PEDIDO = ?
@@ -128,11 +130,13 @@ class modelPedido{
         $con = new Conexion();
         $db = $con->getConnection();
         $lista = [];
-        $query = "SELECT p.ID_PEDIDO, p.FECHA, p.RUT, 
-                         COALESCE(SUM(dp.MONTO_TOTAL), 0) AS MONTO
+        $query = "SELECT p.ID_PEDIDO, p.FECHA, p.RUT,
+                         COALESCE(SUM(dp.MONTO_TOTAL), 0) AS MONTOTOTAL,
+                         dp.CANT,
+                         dp.MONTO
                   FROM pedido p
                   LEFT JOIN det_pedido dp ON p.ID_PEDIDO = dp.ID_PEDIDO
-                  GROUP BY p.ID_PEDIDO, p.FECHA, p.RUT";
+                  GROUP BY p.ID_PEDIDO, p.FECHA, p.RUT,p.MONTO";
 
         $rs = $db->query($query);
         if ($rs) {
@@ -141,8 +145,9 @@ class modelPedido{
                 $lista[] = array(
                     'ID DEL PEDIDO'     => $registro['ID_PEDIDO'],
                     'FECHA DEL PEDIDO'  => $registro['FECHA'],
-                    'MONTO DEL PEDIDO'  => (int)$registro['MONTO'],
-                    'RUT DEL COMPRADOR' => $registro['RUT']
+                    'MONTO TOTAL DEL PEDIDO'  => (int)$registro['MONTOTOTAL'],
+                    'MONTO UNIDAD'=> (int)$registro['MONTO'],
+                    'CANTIDAD' => (int)$registro ['CANT']
                 );
             }
             $rs->free();
