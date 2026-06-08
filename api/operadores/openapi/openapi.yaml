@@ -752,6 +752,244 @@ paths:
                     type: string
                     example: "No se puede eliminar el cliente. Puede que tenga pedidos asociados o el RUT no exista."
 
+  # PEDIDO ~ Drayer
+
+  /pedido/index.php:
+    get:
+      summary: Listar todos los pedidos
+      tags:
+        - Pedido
+      description: >
+        Operaciones según el token Bearer:
+
+        - `llamartodoslospedidos.get` → Lista todos los pedidos registrados en el sistema.
+      security:
+        - BearerPedidoGet: []
+      responses:
+        '200':
+          description: Listado de pedidos
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        ID_PEDIDO:
+                          type: integer
+                          example: 1
+                        FECHA:
+                          type: string
+                          example: "2025-06-08"
+                        MONTO:
+                          type: integer
+                          example: 90000
+                        RUT:
+                          type: integer
+                          example: 12345678
+        '403':
+          description: Acceso prohibido o token inválido
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  type:
+                    type: string
+                    example: "error"
+                  msg:
+                    type: string
+                    example: "Acceso Prohibido"
+
+    post:
+      summary: Buscar pedido por ID / Crear pre-pedido
+      tags:
+        - Pedido
+      description: >
+        Operaciones según el token Bearer:
+
+        - `llamarUnPedido.get` → Busca un pedido específico por su ID_PEDIDO.
+
+        - `IngresarPrePedido.post` → Crea un nuevo pre-pedido con fecha y RUT del cliente.
+      security:
+        - BearerPedidoBuscar: []
+        - BearerPedidoPost: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - title: Buscar pedido por ID
+                  type: object
+                  required:
+                    - ID_PEDIDO
+                  properties:
+                    ID_PEDIDO:
+                      type: integer
+                      example: 1
+                - title: Crear pre-pedido
+                  type: object
+                  required:
+                    - ID_PEDIDO
+                    - FECHA
+                    - RUT
+                  properties:
+                    ID_PEDIDO:
+                      type: integer
+                      example: 1
+                    FECHA:
+                      type: string
+                      example: "2025-06-08"
+                    RUT:
+                      type: integer
+                      example: 12345678
+      responses:
+        '200':
+          description: Operación exitosa
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  type:
+                    type: string
+                    example: "success"
+                  datos:
+                    type: object
+        '400':
+          description: Datos faltantes o inválidos
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  type:
+                    type: string
+                    example: "error"
+                  msg:
+                    type: string
+                    example: "El cuerpo del JSON es incorrecto. Se requiere ID_PEDIDO"
+        '403':
+          description: Acceso prohibido o token inválido
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  type:
+                    type: string
+                    example: "error"
+                  msg:
+                    type: string
+                    example: "Acceso Prohibido o Token Invalido"
+        '404':
+          description: Pedido no encontrado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  type:
+                    type: string
+                    example: "error"
+                  msg:
+                    type: string
+                    example: "No se encontró ningún pedido con el ID proporcionado"
+
+  # DET_PEDIDO ~ Drayer
+
+  /det_pedido/index.php:
+    post:
+      summary: Ingresar detalle al pre-pedido con precio final calculado
+      tags:
+        - Detalle Pedido
+      description: >
+        Operaciones según el token Bearer:
+
+        - `IngresarDatosAlPrePedido.post` → Agrega una camiseta al detalle del pedido. Calcula automáticamente el precio final aplicando el porcentaje de descuento del cliente (POR_OF). El MONTO y MONTO_TOTAL se calculan dinámicamente según la categoría del cliente.
+      security:
+        - BearerDetPedidoPost: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - CANT
+                - SKU
+                - ID_PEDIDO
+              properties:
+                ID_DET_PED:
+                  type: integer
+                  example: 1
+                CANT:
+                  type: integer
+                  example: 3
+                SKU:
+                  type: integer
+                  example: 1001
+                ID_PEDIDO:
+                  type: integer
+                  example: 1
+      responses:
+        '201':
+          description: Detalle del pedido creado exitosamente con precios aplicados
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  type:
+                    type: string
+                    example: "success"
+                  msg:
+                    type: string
+                    example: "Detalle del pedido creado exitosamente y ofertas aplicadas"
+        '400':
+          description: Datos obligatorios faltantes
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  type:
+                    type: string
+                    example: "error"
+                  msg:
+                    type: string
+                    example: "Faltan datos obligatorios: CANT, SKU o ID_PEDIDO"
+        '403':
+          description: Acceso prohibido o token inválido
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  type:
+                    type: string
+                    example: "error"
+                  msg:
+                    type: string
+                    example: "Acceso Prohibido o Token Invalido"
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  type:
+                    type: string
+                    example: "error"
+                  msg:
+                    type: string
+                    example: "Error en el servidor al intentar guardar el detalle"
+
 # SECURITY SCHEMES
 
 components:
@@ -792,3 +1030,23 @@ components:
       type: http
       scheme: bearer
       description: "Token: todocamisetas.cliente.delete"
+
+    # PEDIDO
+    BearerPedidoGet:
+      type: http
+      scheme: bearer
+      description: "Token: llamartodoslospedidos.get"
+    BearerPedidoBuscar:
+      type: http
+      scheme: bearer
+      description: "Token: llamarUnPedido.get"
+    BearerPedidoPost:
+      type: http
+      scheme: bearer
+      description: "Token: IngresarPrePedido.post"
+
+    # DET_PEDIDO
+    BearerDetPedidoPost:
+      type: http
+      scheme: bearer
+      description: "Token: IngresarDatosAlPrePedido.post"
